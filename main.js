@@ -43,6 +43,7 @@
                     },
                 })
             }
+            registerMenu()
         })
         GM_registerMenuCommand('⏏ 导出职位信息', () => {
             let page_num = prompt('请输入需要导出的页数（默认为5）：')
