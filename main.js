@@ -7,6 +7,7 @@
 // @match        *://*.ncss.cn/*
 // @icon         https://t1.chei.com.cn/ncss/student/img/favicon.ico
 // @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_notification
@@ -21,36 +22,43 @@
         if (document.title.includes('职位信息')) return 'zwxx'
     })()
 
+    let menu_items = []
+
     const registerMenu = () => {
+        for (let i = 0; i < menu_items.length; i++) {
+            GM_unregisterMenuCommand(menu_items[i])
+        }
         GM_setValue('b24365_showHiddenOption', GM_getValue('b24365_showHiddenOption') !== undefined ? GM_getValue('b24365_showHiddenOption') : true)
-        GM_registerMenuCommand(`${GM_getValue('b24365_showHiddenOption') ? '✅' : '❌'} 显示隐藏选项`, () => {
-            if (GM_getValue('b24365_showHiddenOption') == true) {
-                GM_setValue('b24365_showHiddenOption', false)
-                GM_notification({
-                    text: `已关闭 [显示隐藏选项] 功能\n（点击刷新网页后生效）`,
-                    timeout: 3500,
-                    onclick: () => {
-                        location.reload()
-                    },
-                })
-            } else {
-                GM_setValue('b24365_showHiddenOption', true)
-                GM_notification({
-                    text: `已开启 [显示隐藏选项] 功能\n（点击刷新网页后生效）`,
-                    timeout: 3500,
-                    onclick: () => {
-                        location.reload()
-                    },
-                })
-            }
-            registerMenu()
-        })
-        GM_registerMenuCommand('⏏ 导出职位信息', () => {
+        menu_items[0] = GM_registerMenuCommand(`${GM_getValue('b24365_showHiddenOption') ? '✅' : '❌'} 显示隐藏选项`, () => menuSwitch('b24365_showHiddenOption', '显示隐藏选项'))
+        menu_items[1] = GM_registerMenuCommand('⏏ 导出职位信息', () => {
             let page_num = prompt('请输入需要导出的页数（默认为5）：')
             if (page_num === null) return
             page_num = parseInt(page_num) || 5
             getjobsList(page_num)
         })
+    }
+
+    const menuSwitch = (index, name) => {
+        if (GM_getValue(index) == true) {
+            GM_setValue(index, false)
+            GM_notification({
+                text: `已关闭 [${name}] 功能\n（点击刷新网页后生效）`,
+                timeout: 3500,
+                onclick: () => {
+                    location.reload()
+                },
+            })
+        } else {
+            GM_setValue(index, true)
+            GM_notification({
+                text: `已开启 [${name}] 功能\n（点击刷新网页后生效）`,
+                timeout: 3500,
+                onclick: () => {
+                    location.reload()
+                },
+            })
+        }
+        registerMenu()
     }
 
     const timeStamp2timeStr = timeStamp => {
