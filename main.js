@@ -51,11 +51,16 @@
                 if (currentRequests < MAX_CONCURRENT_REQUESTS) {
                     currentRequests++
                     fetch(url)
-                        .then(response => resolve(response))
-                        .catch(error => reject(error))
-                    currentRequests--
+                        .then(response => {
+                            resolve(response)
+                            currentRequests--
+                        })
+                        .catch(error => {
+                            reject(error)
+                            currentRequests--
+                        })
                 } else {
-                    setTimeout(fetchRequest, randomInt(100, 300)) // 等待一些时间再重试
+                    setTimeout(fetchRequest, randomInt(100, 200)) // 等待一些时间再重试
                 }
             }
             fetchRequest()
