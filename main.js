@@ -118,6 +118,13 @@
         a.click()
     }
 
+    // 转义CSV字符串
+    const escapeCsv = str => {
+        str = str.replace(/\n/g, '')
+        str = str.replace(/"/g, '""')
+        return `"${str}"`
+    }
+
     // 导出职位列表
     const getjobsList = () => {
         let page_num = prompt('请输入需要导出的页数（默认为5）：')
@@ -141,7 +148,7 @@
                                     return `${jobList[j].lowMonthPay}k-${jobList[j].highMonthPay}k`
                                 }
                             })()
-                            csv += `${id},"${jobList[j].jobName}",${jobList[j].areaCodeName},${salary},${jobList[j].degreeName},${jobList[j].recName},${jobList[j].recScale},${jobList[j].recTags},${timeStamp2timeStr(jobList[j].publishDate)},${timeStamp2timeStr(jobList[j].updateDate)},https://www.ncss.cn/student/jobs/${jobList[j].jobId}/detail.html\n`
+                            csv += `${id},${escapeCsv(jobList[j].jobName)},${jobList[j].areaCodeName},${salary},${jobList[j].degreeName},${escapeCsv(jobList[j].recName)},${jobList[j].recScale},${jobList[j].recTags},${timeStamp2timeStr(jobList[j].publishDate)},${timeStamp2timeStr(jobList[j].updateDate)},https://www.ncss.cn/student/jobs/${jobList[j].jobId}/detail.html\n`
                             id++
                         }
                     })
