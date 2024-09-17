@@ -136,7 +136,7 @@
                                     return `${jobList[j].lowMonthPay}k-${jobList[j].highMonthPay}k`
                                 }
                             })()
-                            csv += `${id},${jobList[j].jobName},${jobList[j].areaCodeName},${salary},${jobList[j].degreeName},${jobList[j].recName},${jobList[j].recScale},${jobList[j].recTags},${timeStamp2timeStr(jobList[j].publishDate)},${timeStamp2timeStr(jobList[j].updateDate)},https://www.ncss.cn/student/jobs/${jobList[j].jobId}/detail.html\n`
+                            csv += `${id},"${jobList[j].jobName}",${jobList[j].areaCodeName},${salary},${jobList[j].degreeName},${jobList[j].recName},${jobList[j].recScale},${jobList[j].recTags},${timeStamp2timeStr(jobList[j].publishDate)},${timeStamp2timeStr(jobList[j].updateDate)},https://www.ncss.cn/student/jobs/${jobList[j].jobId}/detail.html\n`
                             id++
                         }
                     })
