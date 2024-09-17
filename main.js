@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better24365
 // @namespace    https://github.com/ifeng0188
-// @version      0.1.0
+// @version      1.0.0
 // @description  更好的24365，让你更好地体验求职之旅
 // @author       ifeng0188
 // @match        *://*.ncss.cn/*
