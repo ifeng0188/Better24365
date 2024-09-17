@@ -18,12 +18,59 @@
 ;(function () {
     'use strict'
 
+    // 最大并发请求数
+    const MAX_CONCURRENT_REQUESTS = 50
+
+    // 随机整数
+    const randomInt = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min
+    }
+
+    // 时间戳转时间字符串
+    const timeStamp2timeStr = timeStamp => {
+        let date = new Date(timeStamp)
+        let year = date.getFullYear()
+        let month = date.getMonth() + 1
+        let day = date.getDate()
+        let hour = date.getHours()
+        let minute = date.getMinutes()
+        let second = date.getSeconds()
+        month = (month < 10 ? '0' : '') + month
+        day = (day < 10 ? '0' : '') + day
+        hour = (hour < 10 ? '0' : '') + hour
+        minute = (minute < 10 ? '0' : '') + minute
+        second = (second < 10 ? '0' : '') + second
+        return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+    }
+
+    // 限制并发进行请求
+    let currentRequests = 0
+    const fetchWithLimit = url => {
+        return new Promise((resolve, reject) => {
+            const fetchRequest = () => {
+                if (currentRequests < MAX_CONCURRENT_REQUESTS) {
+                    currentRequests++
+                    fetch(url)
+                        .then(response => resolve(response))
+                        .catch(error => reject(error))
+                    currentRequests--
+                } else {
+                    setTimeout(fetchRequest, randomInt(100, 300)) // 等待一些时间再重试
+                }
+            }
+            fetchRequest()
+        })
+    }
+
+    // 页面
     const page = (() => {
         if (document.title.includes('职位信息')) return 'zwxx'
     })()
 
+    // 菜单项
     let menu_items = []
 
+    // 注册菜单
     const registerMenu = () => {
         menu_items.forEach(item => GM_unregisterMenuCommand(item))
         GM_setValue('b24365_showHiddenOption', GM_getValue('b24365_showHiddenOption') !== undefined ? GM_getValue('b24365_showHiddenOption') : true)
@@ -33,6 +80,7 @@
         })
     }
 
+    // 菜单项开关
     const menuSwitch = (index, name) => {
         if (GM_getValue(index) == true) {
             GM_setValue(index, false)
@@ -56,22 +104,7 @@
         registerMenu()
     }
 
-    const timeStamp2timeStr = timeStamp => {
-        let date = new Date(timeStamp)
-        let year = date.getFullYear()
-        let month = date.getMonth() + 1
-        let day = date.getDate()
-        let hour = date.getHours()
-        let minute = date.getMinutes()
-        let second = date.getSeconds()
-        month = (month < 10 ? '0' : '') + month
-        day = (day < 10 ? '0' : '') + day
-        hour = (hour < 10 ? '0' : '') + hour
-        minute = (minute < 10 ? '0' : '') + minute
-        second = (second < 10 ? '0' : '') + second
-        return `${year}-${month}-${day} ${hour}:${minute}:${second}`
-    }
-
+    // 导出为CSV文件
     const saveCsv = content => {
         let blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' })
         let a = document.createElement('a')
@@ -80,7 +113,7 @@
         a.click()
     }
 
-    // 获取职位列表
+    // 导出职位列表
     const getjobsList = () => {
         let page_num = prompt('请输入需要导出的页数（默认为5）：')
         if (page_num === null) return
@@ -91,7 +124,7 @@
         for (let i = 1; i <= page_num; i++) {
             parameter.offset = i
             fetchPromises.push(
-                fetch(`/student/jobs/jobslist/ajax/?${new URLSearchParams(parameter).toString()}`)
+                fetchWithLimit(`/student/jobs/jobslist/ajax/?${new URLSearchParams(parameter).toString()}`)
                     .then(response => response.json())
                     .then(data => {
                         let jobList = data.data.list
